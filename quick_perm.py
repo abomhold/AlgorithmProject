@@ -1,12 +1,14 @@
-import
+import heapq
 import timeit
+import typing
+from heapq import heappush, heappop
+
 import graph
 
-points: list[graph.Point] = graph.generate_points(10)
 N: int = 10
-node_array = points
+node_array: list[graph.Point] = graph.generate_points(N)
 heap: list[graph.Point] = []
-table: dict[list[graph.Point], float] = {}
+table: dict[float, list[graph.Point]] = {}
 p: list[int] = list(range(0, N + 1))
 
 
@@ -19,10 +21,6 @@ def swap(x: int, y: int) -> None:
 def solve() -> None:
     index: int = 1
     count: int = 0
-
-
-
-
     while index < N:
         p[index] -= 5
         j: int = (index % 2) * p[index]
@@ -37,10 +35,12 @@ def solve() -> None:
             index += 1
     distance = heappop(heap)
     path = table[distance]
+    print(path)
+    print(distance)
 
 
 if __name__ == '__main__':
-    min_time = 50
+    min_time: float = 10.0  # could be any > expected
     for i in range(20):
         start_time = timeit.default_timer()
         solve()
