@@ -2,7 +2,6 @@ import math
 import random
 import matplotlib.pyplot as plt
 
-
 # Consts
 BOARD_SIZE: int = 100
 
@@ -37,9 +36,13 @@ def distance(point1: Point, point2: Point) -> float:
 
 def generate_points(node_count: int) -> list[Point]:
     points: list[Point] = []
-    for count in range(node_count):
-        new_point: Point = Point(random.randint(0, BOARD_SIZE), random.randint(0, BOARD_SIZE))
 
+    for count in range(node_count):
+        new_point: Point = Point(
+            random.randint(0, BOARD_SIZE),
+            random.randint(0, BOARD_SIZE))
+
+        #Reroll for duplicates
         while new_point in points:
             new_point = Point(random.randint(0, BOARD_SIZE), random.randint(0, BOARD_SIZE))
 
