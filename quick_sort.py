@@ -42,6 +42,7 @@ def held_karp(arr, pos, mask, memo):
         return memo[(pos, mask)]
 
     ans = float('inf')
+
     for i in range(1, len(arr)):
         if (mask >> i) == 0:
             ans = min(ans, held_karp(arr, i, (mask | 1 << i), memo) + distance(arr[pos], arr[i]))
