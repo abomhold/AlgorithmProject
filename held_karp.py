@@ -1,3 +1,24 @@
+# # Algorithm tsp({c1, c2, . . . cn}, d).
+# # Input: Set of cities {c1, c2, . . . , cn} and for each pair of cities ci, c j the distance d(ci, c j ).
+# # Output: The minimum length of a tour.
+# # for i = 2 to n do
+# # OPT [ci, ci] = d(c1, ci)
+# # for j = 2 to n − 1 do
+# # forall S ⊆ {2, 3, . . . , n} with |S| = j do
+# # OPT [S, ci] = min{OPT [S \ {ci}, ck] + d(ck, ci) : ck ∈ S \ {ci}}
+# # return min{OPT [{c2, c3, . . . , cn}, ci] + d(ci, c1) : i ∈ {2, 3, . . . , n}}
+def distance(x, y):
+    return 0
+
+
+def held_karp(arr):
+    opt = []
+    for i in range(1, len(arr)):
+        opt[i][i] = distance(arr[0], arr[i])
+
+    for j in range(1, len(arr)-1):
+
+
 # import graph
 #
 # N: int = 5

@@ -1,11 +1,11 @@
 import math
 import random
+from typing import List
 
 
 def quick_sort(arr: list[int]) -> list[int]:
     if len(arr) < 2:
         return arr
-
     pivot = arr[0]
     left = []
     right = []
@@ -17,15 +17,19 @@ def quick_sort(arr: list[int]) -> list[int]:
     return quick_sort(left) + [pivot] + quick_sort(right)
 
 
-def quick_perm(arr: list[int]) -> list[int]:
+def quick_perm(arr: list[int]) -> list[list[int]] | list[int | any]:
     if len(arr) < 2:
-        return arr
-    for i in range(1, len(arr)):
-        print(arr[i] + quick_perm())
-
+        return [arr]
+    perm_list = []
+    for i in arr:
+        remaining_elements = [x for x in arr if x != i]
+        for perm in quick_perm(remaining_elements):
+            perm_list.append([i] + perm)
+    return perm_list
 
 
 if __name__ == '__main__':
     res = random.sample(range(1, 50), 7)
     print(res)
     print(quick_sort(res))
+    print(quick_perm(res))
