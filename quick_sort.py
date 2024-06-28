@@ -17,7 +17,7 @@ def quick_sort(arr: list[int]) -> list[int]:
     return quick_sort(left) + [pivot] + quick_sort(right)
 
 
-def quick_perm(arr: list[int]) -> list[list[int]] | list[int | any]:
+def quick_perm(arr):
     if len(arr) < 2:
         return [arr]
     perm_list = []
@@ -32,4 +32,5 @@ if __name__ == '__main__':
     res = random.sample(range(1, 50), 7)
     print(res)
     print(quick_sort(res))
-    print(quick_perm(res))
+    for line in quick_perm(res):
+        print(line)
