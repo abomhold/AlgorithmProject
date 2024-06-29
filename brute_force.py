@@ -1,3 +1,4 @@
+import itertools
 import timeit
 from heapq import heappush, heappop
 
@@ -17,17 +18,26 @@ def permutations(arr: list[Point]) -> list[list[Point]]:
             perm_list.append([j] + perm)
     return perm_list
 
-
 def solve(arr: list[Point]) -> tuple[list[Point], float]:
-    perms = permutations(arr)
-    perm_dist: list[float] = []
+    perm_dist = []
     perm_dict = {}
-    for perm in perms:
-        distance = path_distance(perm)
-        heappush(perm_dist, distance)
-        perm_dict[distance] = perm
+    for perm in itertools.permutations(arr):
+        cost = path_distance(list(perm))
+        heappush(perm_dist, cost)
+        perm_dict[cost] = list(perm)
     best = heappop(perm_dist)
     return perm_dict[best], best
+
+# def solve(arr: list[Point]) -> tuple[list[Point], float]:
+#     perms = permutations(arr)
+#     perm_dist: list[float] = []
+#     perm_dict = {}
+#     for perm in perms:
+#         distance = path_distance(perm)
+#         heappush(perm_dist, distance)
+#         perm_dict[distance] = perm
+#     best = heappop(perm_dist)
+#     return perm_dict[best], best
 
 
 if __name__ == '__main__':

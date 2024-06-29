@@ -59,7 +59,7 @@ def plot_points(points: list[Point]) -> None:
 
 
 if __name__ == '__main__':
-    points_list = generate_points(5)
+    points_list = generate_points(7)
     print(points_list)
     print(path_distance(points_list))
 

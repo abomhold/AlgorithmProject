@@ -1,26 +1,47 @@
 import timeit
 from heapq import heappush, heappop
 
-from graph import path_distance, generate_points, Point
+from graph import path_distance, generate_points, Point, distance
 
-N: int = 5
-node_array: list[Point] = generate_points(N)
+node_count: int = 15
 memo = {}
+node_array: list[Point] = generate_points(node_count)
+
 
 def solve(pos, mask):
+    if mask == (1 << node_count) - 1:
+        return distance(node_array[pos], node_array[0]), [node_array[0]]
 
+    if (pos, mask) in memo:
+        return memo[(pos, mask)]
+
+    best_distance = float('inf')
+    best_path = []
+
+    for j in range(node_count):
+        # if the index is not in the mask,...
+        if not (mask & (1 << j)):
+            current_distance, path = solve(j, mask | (1 << j))
+            current_distance += distance(node_array[pos], node_array[j])
+
+            if current_distance < best_distance:
+                best_distance = current_distance
+                best_path = [node_array[j]] + path
+
+    memo[(pos, mask)] = (best_distance, best_path)
+    return memo[(pos, mask)]
 
 
 if __name__ == '__main__':
     min_time: float = float('inf')
     for i in range(1):
         start_time = timeit.default_timer()
-        shortest = solve(node_array)
-        print(shortest)
+        cost, path = solve(0, 1)
+        print(f"Optimal cost: {cost}")
+        print(f"Optimal path: {path}")
         end_time = timeit.default_timer()
         min_time = min(min_time, end_time - start_time)
     print(min_time)
-
 
 # def held_karp(arr, pos, mask, memo):
 #     # Check if all nodes have been visited
