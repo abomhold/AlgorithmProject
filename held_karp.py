@@ -1,13 +1,13 @@
-import timeit
-
 import graph
 from graph import generate_points, Point, calculate_distance
 
 
-def solve(pos: int, mask: int):
+def solve(pos: int, mask: int) -> tuple[float, list[Point]]:
+    # Check if all positions have been visited this recursive call
     if mask == (1 << node_count) - 1:
         return calculate_distance(node_array[pos], node_array[0]), [node_array[0]]
 
+    # Check if the current combination has been calculated before
     if (pos, mask) in memo:
         return memo[(pos, mask)]
 
@@ -28,10 +28,10 @@ def solve(pos: int, mask: int):
     return memo[(pos, mask)]
 
 
-max_node_count: int = 12
+max_node_count: int = 10
 node_count: int
 node_array: list[Point]
-memo: dict[tuple[int, int], tuple[float, list]]
+memo: dict[tuple[int, int], tuple[float, list[Point]]]
 
 if __name__ == '__main__':
     for i in range(4, max_node_count):
@@ -39,6 +39,7 @@ if __name__ == '__main__':
         node_array = generate_points(node_count)
         memo = {}
         cost, path = solve(0, 1)
-        print(f"Optimal distance:   {cost}")
-        print(f"Optimal path:       {path}")
-        print(f"Calculations:       {graph.calculations}\n")
+        print(f"{i},{cost},{graph.calculations},{path}")
+        # print(f"Optimal distance:   {cost}")
+        # print(f"Optimal path:       {}")
+        # print(f"Calculations:       {graph.calculations}\n")
