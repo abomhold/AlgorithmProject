@@ -2,8 +2,9 @@ import math
 import random
 import matplotlib.pyplot as plt
 
-# Consts
-BOARD_SIZE: int = 100
+# Global
+board_length: int = 100
+calculations: int = 0
 
 
 class Point:
@@ -23,13 +24,15 @@ def path_distance(points: list[Point]) -> float:
     last_point: Point = points[-1]
 
     for point in points:
-        acc += distance(last_point, point)
+        acc += calculate_distance(last_point, point)
         last_point = point
 
     return acc
 
 
-def distance(point1: Point, point2: Point) -> float:
+def calculate_distance(point1: Point, point2: Point) -> float:
+    global calculations
+    calculations += 1
     return math.sqrt(math.pow(point1.x_cord - point2.x_cord, 2)
                      + math.pow(point1.y_cord - point2.y_cord, 2))
 
@@ -37,14 +40,17 @@ def distance(point1: Point, point2: Point) -> float:
 def generate_points(node_count: int) -> list[Point]:
     points: list[Point] = []
 
-    for count in range(node_count):
+    for _ in range(node_count):
         new_point: Point = Point(
-            random.randint(0, BOARD_SIZE),
-            random.randint(0, BOARD_SIZE))
+            random.randint(0, board_length),
+            random.randint(0, board_length))
 
         #Reroll for duplicates
+
+        # When is it better to reroll vs calculate all and then pick randomly?
+
         while new_point in points:
-            new_point = Point(random.randint(0, BOARD_SIZE), random.randint(0, BOARD_SIZE))
+            new_point = Point(random.randint(0, board_length), random.randint(0, board_length))
 
         points.append(new_point)
 
@@ -60,7 +66,6 @@ def plot_points(points: list[Point]) -> None:
 
 if __name__ == '__main__':
     points_list = generate_points(7)
-    print(points_list)
-    print(path_distance(points_list))
-
-    plot_points(points_list)
+    print(f"Optimal cost: {path_distance(points_list)}")
+    print(f"Optimal path: {points_list}")
+    print(f"Count: {calculations}")

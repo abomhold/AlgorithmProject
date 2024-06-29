@@ -2,7 +2,7 @@ import itertools
 import timeit
 from heapq import heappush, heappop
 
-from graph import path_distance, generate_points, Point
+from graph import calculate_distance, generate_points, Point
 
 N: int = 5
 node_array: list[Point] = generate_points(N)
@@ -22,7 +22,7 @@ def solve(arr: list[Point]) -> tuple[list[Point], float]:
     perm_dist = []
     perm_dict = {}
     for perm in itertools.permutations(arr):
-        cost = path_distance(list(perm))
+        cost = calculate_distance(list(perm))
         heappush(perm_dist, cost)
         perm_dict[cost] = list(perm)
     best = heappop(perm_dist)

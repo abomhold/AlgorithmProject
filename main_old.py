@@ -11,10 +11,10 @@ def sum_path(points: tuple[any, ...]) -> float:
     last_point: graph.Point = points[0]
 
     for point in points:
-        sum_ += graph.distance(last_point, point)
+        sum_ += graph.calculate_distance(last_point, point)
         last_point = point
 
-    sum_ += graph.distance(last_point, points[0])
+    sum_ += graph.calculate_distance(last_point, points[0])
     return sum_
 
 
