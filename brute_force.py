@@ -18,7 +18,7 @@ def find_shortest_path(pos: int, mask: int) -> tuple[float, list[Point]]:
     for j in range(node_count):
         # if the index is not in the mask,...
         if not (mask & (1 << j)):
-            current_distance, sub_path = find_shortest_path(j, mask | (1 << j))
+            current_distance, sub_path = find_shortest_path(j, mask | (1 << j))  # the | flips the current bit
             current_distance += calculate_distance(node_array[pos], node_array[j])
 
             if current_distance < best_distance:

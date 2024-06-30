@@ -1,6 +1,11 @@
 import graph
 from graph import generate_points, Point, calculate_distance
 
+max_node_count: int = 10
+node_count: int
+node_array: list[Point]
+memo: dict[tuple[int, int], tuple[float, list[Point]]]
+
 
 def solve(pos: int, mask: int) -> tuple[float, list[Point]]:
     # Check if all positions have been visited this recursive call
@@ -27,11 +32,6 @@ def solve(pos: int, mask: int) -> tuple[float, list[Point]]:
     memo[(pos, mask)] = (best_distance, best_path)
     return memo[(pos, mask)]
 
-
-max_node_count: int = 10
-node_count: int
-node_array: list[Point]
-memo: dict[tuple[int, int], tuple[float, list[Point]]]
 
 if __name__ == '__main__':
     for i in range(4, max_node_count):
