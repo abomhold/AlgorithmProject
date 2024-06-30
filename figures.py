@@ -1,56 +1,95 @@
+from typing import Generator
+import math
 import matplotlib.pyplot as plt
-import numpy as np
-from matplotlib.scale import LogScale
-from graph import Point
 
-dynamic = [21, 85, 270, 786, 2179, 5827, 15124, 38264, 94705]
-brute = [21, 88, 445, 2676, 18739, 149920, 1349289, 13492900, 148421911]
-x_values = [x for x in range(4, 13)]
+dynamic: list[int] = [21, 85, 270, 786, 2179, 5827, 15124, 38264, 94705, 230017]
+brute: list[int] = [21, 88, 445, 2676, 18739, 149920, 1349289, 13492900, 148421911, 1781062944]
+x_values: list[int] = [x for x in range(4, 14)]
+min_nodes: int = 4
+max_nodes: int = 14
 
-if __name__ == '__main__':
+
+def generate_plot() -> None:
     fig, ax = plt.subplots()
-    for index in range(len(x_values)):
-        plt.plot(x_values[index], dynamic[index], '1', color='blue')
+    ax.plot(x_values, brute, '.', linestyle=':', color='red', label='naive')
+    ax.plot(x_values, dynamic, '.', linestyle=':', color='blue', label='dynamic')
 
-    for index in range(len(x_values)):
-        plt.plot(x_values[index], brute[index], '2', color='red')
+    ax.plot(x_values, [x for x in fact_class_gen(max_nodes)], linestyle=(0, (1, 10)), color='grey', label='Θ(n!)')
+    ax.plot(x_values, [x for x in exp_class_gen(max_nodes)], linestyle=(0, (1, 10)), color='grey', label='Θ(2ⁿ)')
+    ax.plot(x_values, [x for x in square_class_gen(max_nodes)], linestyle=(0, (1, 10)), color='grey', label='Θ(n²)')
 
+    ax.legend(loc='upper left')
     ax.set_yscale('log', base=2)
+
+    # ax.set_xlim(xm.in=3, xmax=14)
+
+    ax.set(
+        xlabel="number of cites",
+        ylabel="number of distance calculations",
+        title="Runtime Cost of Traveling Salesman Solutions",
+        xmargin=.03,
+        xticks=[4,5,6,7,8,9,10,11,12,13]
+    )
+
     plt.show()
 
-# plt.step(current_point[0], current_point[1], label='pre (default)')
-# fig, ax = plt.subplots()
-#
-# dt = 0.01
-# t = np.arange(dt, 20.0, dt)
-#
-# ax.semilogx(t, np.exp(-t / 5.0))
-# ax.grid()
-#
-# plt.show()
 
-# # for testing
-# # x_values = [x for x in range(4, 20)]
-# # dynamic = [21, 85, 270, 786, 2179, 5827, 15124, 38264, 94705, 230017, 549674, 1295342, 3015887, 6948303, 15861488,
-# #            35915828]
-# #
-# dynamic = [(4, 21), (5, 85), (6, 270), (7, 786), (8, 2179), (9, 5827), (10, 15124), (11, 38264), (12, 94705),
-#            (13, 230017), (14, 549674), (15, 1295342), (16, 3015887), (17, 6948303), (18, 15861488), (19, 35915828)]
-# #
-# brute = [(4, 21), (5, 88), (6, 445), (7, 2676), (8, 18739), (9, 149920), (10, 1349289), (11, 13492900), (12, 148421911)]
+def exp_class_gen(limit: int) -> Generator[int, None, None]:
+    for i in range(min_nodes, limit):
+        yield 2 ** i
 
-# def plot_points(points: list[tuple[int, int]]) -> None:
+
+def fact_class_gen(limit: int) -> Generator[int, None, None]:
+    for i in range(min_nodes, limit):
+        yield math.factorial(i)
+
+
+def square_class_gen(limit: int) -> Generator[int, None, None]:
+    for i in range(min_nodes, limit):
+        yield i ** 2
+
+
+if __name__ == '__main__':
+    generate_plot()
+
+# import math
+#
+#
+
+# max_nodes = 14
+# dynamic: list[int] = [21, 85, 270,  786,  2179,   5827,   15124,    38264,     94705]
+import math
+from typing import Generator
+
+import matplotlib.pyplot as plt
+
+max_nodes: int = 13
+min_nodes: int = 4
+# brute: list[int] =   [21, 88, 445, 2676, 18739, 149920, 1349289, 13492900, 148421911]
+# x_values: list[int] = [x for x in range(min_nodes, 15)]
+#
+#
+# def generate_plot() -> None:
 #     fig, ax = plt.subplots()
-#     # ax.set_yscal;e
-#     # ax.set_yscale('log', base=2)
-#     # ax.set_xscale('log', base=2)
-#     # ax.set_ylim(ymin=0,ymax=40000000)
+#     ax.plot(x_values, brute, '.', linestyle=':', color='red', label='naive')
+#     ax.plot(x_values, dynamic, '.', linestyle=':', color='blue', label='dynamic')
 #
-#     # ax.set_xlim(xmin=3, xmax=20)
+#     ax.plot(x_values, [x for x in fact_class_gen(max_nodes)], linestyle=(0, (1, 10)), color='grey', label='Θ(n!)')
+#     ax.plot(x_values, [x for x in exp_class_gen(max_nodes)], linestyle=(0, (1, 10)), color='grey', label='Θ(2ⁿ)')
+#     ax.plot(x_values, [x for x in square_class_gen(max_nodes)], linestyle=(0, (1, 10)), color='grey', label='Θ(n²)')
 #
-#     for current_point in points:
-#         plt.step(current_point[0], current_point[1], label='pre (default)')
-#         plt.plot(current_point[0], current_point[1], 'o--', color='blue')
-#         # plt.stem(current_point[0], current_point[1], linefmt='grey', markerfmt='D', bottom=1.1)
-#         # plt.stem(,current_point[0])
-#         # plt.stairs(current_point[0], current_point[1])
+#     ax.legend(loc='upper left')
+#     ax.set_yscale('log', base=2)
+#     ax.set(
+#         xlabel="number of cites",
+#         ylabel="number of distance calculations",
+#         title="Runtime Cost of Traveling Salesman Solutions"
+#     )
+#
+#     plt.show()
+#
+#
+
+#
+# if __name__ == '__main__':
+#     generate_plot()
