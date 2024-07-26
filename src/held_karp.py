@@ -1,7 +1,8 @@
 import graph
 from graph import generate_points, Point, calculate_distance
 
-max_node_count: int = 10
+max_node_count: int = 11
+
 node_count: int
 node_array: list[Point]
 memo: dict[tuple[int, int], tuple[float, list[Point]]]
@@ -40,6 +41,3 @@ if __name__ == '__main__':
         memo = {}
         cost, path = solve(0, 1)
         print(f"{i},{cost},{graph.calculations},{path}")
-        # print(f"Optimal distance:   {cost}")
-        # print(f"Optimal path:       {}")
-        # print(f"Calculations:       {graph.calculations}\n")

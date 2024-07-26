@@ -69,10 +69,10 @@ def find_path(graph):
     return path
 
 
-def prims_mst():
+def prims_mst(r):
     unselected = set(node_array.copy())
     mst = []
-    for _ in range(node_count - 1):
+    for _ in range(len(unselected) - 1):
         min_edge = float('inf')
         (p1, p2) = (None, None)
         for point in node_array:
@@ -115,53 +115,7 @@ if __name__ == '__main__':
     node_array = generate_points(node_count)
     print(f"Path: {node_array}")
     distance_dict = create_distance_dict(node_array)
-    tour = christofides()
-    print(f"{i},{tour}")
-    print(f"Calculations: {graph.calculations}\n")
+    path = christofides()
+    cost = graph.path_distance(path)
+    print(f"{i},{cost},{graph.calculations},{path}")
 
-# for j in range(n):
-#     if not selected[j] and distance_array[i][j] > 0:
-#         if distance_array[i][j] < min_edge:
-#             min_edge = distance_array[i][j]
-#             x, y = i, j
-# while unmatched:
-#     min_dist = float('inf')
-#     min_pair = None
-#     for i, v1 in enumerate(unmatched):
-#         for j in range(i + 1, len(unmatched)):
-#             v2 = unmatched[j]
-#             if distance_dict[(v1, v2)] < min_dist:
-#                 min_dist = distance_dict[(v1, v2)]
-#                 min_pair = (v1, v2)
-#
-#     if min_pair:
-#         matching.append(min_pair)
-#         unmatched.remove(min_pair[0])
-#         unmatched.remove(min_pair[1])
-#     else:
-#         break  # This should not happen in a complete graph
-# def min_weight_matching(distances, vertices):
-#     n = len(vertices)
-#     matching = []
-#     used = [False] * n
-#
-#     for i in range(n):
-#         if not used[i]:
-#             min_dist = float('inf')
-#             min_j = -1
-#             for j in range(i + 1, n):
-#                 if not used[j] and distances[vertices[i]][vertices[j]] < min_dist:
-#                     min_dist = distances[vertices[i]][vertices[j]]
-#                     min_j = j
-#             if min_j != -1:
-#                 matching.append((vertices[i], vertices[min_j]))
-#                 used[i] = used[min_j] = True
-#
-#     return matching
-# T = {s}
-# enqueue edges connected to s in PQ (by inc weight)
-# while (!PQ.isEmpty)
-#     if (vertex v linked with e = PQ.remove ∉ T)
-#         T = T ∪ {v, e}, enqueue edges connected to v
-#     else ignore e
-# MST = T
