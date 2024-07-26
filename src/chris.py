@@ -1,193 +1,167 @@
-from graph import generate_points, Point, calculate_distance, calculations
-from math import inf
+from graph import generate_points, Point, calculate_distance, create_distance_dict
+# from math import inf
+import graph
 
-
-max_node_count: int = 10
+max_node_count: int = 13
 node_count: int
 node_array: list[Point]
+distance_dict: dict[tuple[Point, Point], float]
 
 
-def christofides(distances):
-    num_vertices = len(distances)
+def christofides():
+    # node_count = len(distance_array)
 
     # Step 1: Create a minimum spanning tree
-    mst = prim_mst(distances)
+    mst = prims_mst()
+    print(f"MST: {mst}")
 
     # Step 2: Find odd-degree vertices
-    degree = [sum(1 for edge in mst if v in edge) for v in range(num_vertices)]
-    odd_vertices = [v for v in range(num_vertices) if degree[v] % 2 == 1]
+    # # Count the degree of each vertex
+    degree = {}
+    for points in mst:
+        (point1, point2) = points
+        if point1 not in degree:
+            degree[point1] = 0
+        if point2 not in degree:
+            degree[point2] = 0
+        degree[point1] += 1
+        degree[point2] += 1
+    print(f"Degree: {degree}")
+
+    # # Find odd-degree vertices
+    odd_vertices = [node for node in degree if degree[node] % 2 == 1]
+    print(f"Odd Vertices: {odd_vertices}")
 
     # Step 3: Find minimum weight perfect matching
-    matching = min_weight_matching(distances, odd_vertices)
+    matching = min_weight_matching(odd_vertices)
+    print(f"Matching: {matching}")
 
     # Step 4: Combine MST and matching
     combined_graph = mst + matching
+    print(f"Combined Graph: {combined_graph}")
 
     # Step 5: Find Eulerian circuit
-    eulerian_circuit = find_path(combined_graph)
+    path = find_path(combined_graph)
+    print(f"Path: {path}")
 
     # Step 6: Make Hamiltonian circuit
-    hamiltonian_circuit = list(dict.fromkeys(eulerian_circuit))
+    hamiltonian_circuit = list(dict.fromkeys(path))
     hamiltonian_circuit.append(hamiltonian_circuit[0])
-
+    print(f"Hamiltonian Circuit: {hamiltonian_circuit}")
+    print(f"Cost: {graph.path_distance(hamiltonian_circuit)}")
     return hamiltonian_circuit
 
 
-def prim_mst(distances):
-    num_vertices = len(distances)
-    selected = [False] * num_vertices
+def find_path(graph):
+    path = []
+    for (p1, p2) in graph:
+        if not path:
+            path.append(p1)
+            path.append(p2)
+        else:
+            for i in range(len(path)):
+                if path[i] == p1:
+                    path.insert(i + 1, p2)
+                    break
+                elif path[i] == p2:
+                    path.insert(i + 1, p1)
+                    break
+    return path
+
+
+def prims_mst():
+    unselected = set(node_array.copy())
     mst = []
-    selected[0] = True
-
-    for _ in range(num_vertices - 1):
-        min_dist = float('inf')
-        min_edge = None
-        for i in range(num_vertices):
-            if selected[i]:
-                for j in range(num_vertices):
-                    if not selected[j] and distances[i][j] < min_dist:
-                        min_dist = distances[i][j]
-                        min_edge = (i, j)
-        mst.append(min_edge)
-        selected[min_edge[1]] = True
-
+    for _ in range(node_count - 1):
+        min_edge = float('inf')
+        (p1, p2) = (None, None)
+        for point in node_array:
+            if point in unselected:
+                for other_point in node_array:
+                    if other_point in unselected and point != other_point:
+                        if distance_dict[(point, other_point)] < min_edge:
+                            min_edge = distance_dict[(point, other_point)]
+                            (p1, p2) = (point, other_point)
+        mst.append((p1, p2))
+        unselected.remove(p1)
     return mst
 
 
-# def prim_mst(distances):
-#     vertices = len(distances)
-#     key = [] * vertices
-#     parent = [None] * vertices  # Array to store constructed MST
-#     key[0] = 0
-#     mst_set = [False] * vertices
-#     parent[0] = -1
-#
-#     def min_key(key, mst_set):
-#         min_value = sys.maxsize
-#         min_index = -1
-#         for v in range(vertices):
-#             if mst_set[v] is False and key[v] < min_value:
-#                 min_value = key[v]
-#                 min_index = v
-#         return min_index
-#
-#     for _ in range(vertices):
-#         u = min_key(key, mst_set)
-#         mst_set[u] = True
-#
-#         for v in range(vertices):
-#             if graph[u][v] > 0 and mst_set[v] == False and graph[u][v] < key[v]:
-#                 key[v] = graph[u][v]
-#                 parent[v] = u
-#
-#     return parent
-#
-
-def primMST(self):
-    key = [inf] * self.V
-    parent = [None] * self.V  # Array to store constructed MST
-    key[0] = 0
-    mstSet = [False] * self.V
-    parent[0] = -1
-
-    for cout in range(self.V):
-        u = self.minKey(key, mstSet)
-        mstSet[u] = True
-
-    for v in range(self.V):
-        if mstSet[v] is False and 0 < self.graph[u][v] < key[v]:
-            key[v] = self.graph[u][v]
-            parent[v] = u
-
-
-def min_weight_matching(distances, vertices):
-    n = len(vertices)
+def min_weight_matching(odd_vertices: list[Point]) -> list[tuple[Point, Point]]:
     matching = []
-    used = [False] * n
+    unmatched = odd_vertices.copy()
+    while unmatched:
+        min_dist = float('inf')
+        min_pair = None
+        for (index, p1) in enumerate(unmatched):
+            for j in range(index + 1, len(unmatched)):
+                p2 = unmatched[j]
+                if distance_dict[(p1, p2)] < min_dist:
+                    min_dist = distance_dict[(p1, p2)]
+                    min_pair = (p1, p2)
 
-    for i in range(n):
-        if not used[i]:
-            min_dist = float('inf')
-            min_j = -1
-            for j in range(i + 1, n):
-                if not used[j] and distances[vertices[i]][vertices[j]] < min_dist:
-                    min_dist = distances[vertices[i]][vertices[j]]
-                    min_j = j
-            if min_j != -1:
-                matching.append((vertices[i], vertices[min_j]))
-                used[i] = used[min_j] = True
-
+        if min_pair:
+            matching.append(min_pair)
+            unmatched.remove(min_pair[0])
+            unmatched.remove(min_pair[1])
+        else:
+            break
     return matching
 
 
-def find_path(graph):
-    # Simple DFS-based Eulerian circuit finder
-    adj_list = {}
-    for u, v in graph:
-        adj_list.setdefault(u, []).append(v)
-        adj_list.setdefault(v, []).append(u)
-
-    circuit = []
-
-    def dfs(v):
-        while adj_list[v]:
-            u = adj_list[v].pop()
-            adj_list[u].remove(v)
-            dfs(u)
-        circuit.append(v)
-
-    dfs(graph[0][0])
-    return circuit[::-1]
-
-
-def create_distance_matrix(points):
-    return [[calculate_distance(p1, p2) for p2 in points] for p1 in points]
-
-
 if __name__ == '__main__':
-    for i in range(4, max_node_count):
-        node_count = i
-        node_array = generate_points(node_count)
-        print(f"Path: {node_array}")
-        distances = create_distance_matrix(node_array)
-        tour = christofides(distances)
-        print(f"{i},{tour}")
-        print(f"Calculations:       {calculations}\n")
+    i = max_node_count
+    node_count = i
+    node_array = generate_points(node_count)
+    print(f"Path: {node_array}")
+    distance_dict = create_distance_dict(node_array)
+    tour = christofides()
+    print(f"{i},{tour}")
+    print(f"Calculations: {graph.calculations}\n")
 
-# def primMST(self):
+# for j in range(n):
+#     if not selected[j] and distance_array[i][j] > 0:
+#         if distance_array[i][j] < min_edge:
+#             min_edge = distance_array[i][j]
+#             x, y = i, j
+# while unmatched:
+#     min_dist = float('inf')
+#     min_pair = None
+#     for i, v1 in enumerate(unmatched):
+#         for j in range(i + 1, len(unmatched)):
+#             v2 = unmatched[j]
+#             if distance_dict[(v1, v2)] < min_dist:
+#                 min_dist = distance_dict[(v1, v2)]
+#                 min_pair = (v1, v2)
 #
-#     # Key values used to pick minimum weight edge in cut
-#     key = [sys.maxsize] * self.V
-#     parent = [None] * self.V  # Array to store constructed MST
-#     # Make key 0 so that this vertex is picked as first vertex
-#     key[0] = 0
-#     mstSet = [False] * self.V
+#     if min_pair:
+#         matching.append(min_pair)
+#         unmatched.remove(min_pair[0])
+#         unmatched.remove(min_pair[1])
+#     else:
+#         break  # This should not happen in a complete graph
+# def min_weight_matching(distances, vertices):
+#     n = len(vertices)
+#     matching = []
+#     used = [False] * n
 #
-#     parent[0] = -1  # First node is always the root of
+#     for i in range(n):
+#         if not used[i]:
+#             min_dist = float('inf')
+#             min_j = -1
+#             for j in range(i + 1, n):
+#                 if not used[j] and distances[vertices[i]][vertices[j]] < min_dist:
+#                     min_dist = distances[vertices[i]][vertices[j]]
+#                     min_j = j
+#             if min_j != -1:
+#                 matching.append((vertices[i], vertices[min_j]))
+#                 used[i] = used[min_j] = True
 #
-#     for cout in range(self.V):
-#
-#         # Pick the minimum distance vertex from
-#         # the set of vertices not yet processed.
-#         # u is always equal to src in first iteration
-#         u = self.minKey(key, mstSet)
-#
-#         # Put the minimum distance vertex in
-#         # the shortest path tree
-#         mstSet[u] = True
-#
-#         # Update dist value of the adjacent vertices
-#         # of the picked vertex only if the current
-#         # distance is greater than new distance and
-#         # the vertex in not in the shortest path tree
-#         for v in range(self.V):
-#
-#             # graph[u][v] is non zero only for adjacent vertices of m
-#             # mstSet[v] is false for vertices not yet included in MST
-#             # Update the key only if graph[u][v] is smaller than key[v]
-#             if self.graph[u][v] > 0 and mstSet[v] == False \
-#                     and key[v] > self.graph[u][v]:
-#                 key[v] = self.graph[u][v]
-#                 parent[v] = u
-#
-#     self.printMST(parent)
+#     return matching
+# T = {s}
+# enqueue edges connected to s in PQ (by inc weight)
+# while (!PQ.isEmpty)
+#     if (vertex v linked with e = PQ.remove ∉ T)
+#         T = T ∪ {v, e}, enqueue edges connected to v
+#     else ignore e
+# MST = T

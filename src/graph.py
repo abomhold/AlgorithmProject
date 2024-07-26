@@ -40,6 +40,16 @@ def path_distance(points: list[Point]) -> float:
     return accumulator
 
 
+# Create a matrix for the distance between all points
+def create_distance_dict(points: list[Point]) -> dict[tuple[Point, Point], float]:
+    dist = {}
+    for i in range(len(points)):
+        for j in range(i + 1, len(points)):
+            dist[(points[i], points[j])] = calculate_distance(points[i], points[j])
+            dist[(points[j], points[i])] = dist[(points[i], points[j])]
+    return dist
+
+
 def generate_points(node_count: int) -> list[Point]:
     points: list[Point] = []
 
@@ -55,7 +65,8 @@ def generate_points(node_count: int) -> list[Point]:
 
 
 if __name__ == '__main__':
-    points_list = generate_points(7)
+    points_list = generate_points(20)
     print(f"Path: {points_list}")
     print(f"Cost: {path_distance(points_list)}")
     print(f"Count: {calculations}")
+    print(f"Matrix: {create_distance_matrix(points_list)}")
