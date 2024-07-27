@@ -1,5 +1,6 @@
-import graph
-from graph import generate_points, Point, calculate_distance
+from src import graph
+from src.graph import generate_points, calculate_distance, Point
+
 
 max_node_count: int = 10
 node_count: int

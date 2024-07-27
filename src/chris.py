@@ -2,21 +2,26 @@ from graph import generate_points, Point, calculate_distance, create_distance_di
 # from math import inf
 import graph
 
-max_node_count: int = 13
-node_count: int
-node_array: list[Point]
-distance_dict: dict[tuple[Point, Point], float]
+
+# max_node_count: int = 13
+# node_count: int
+# node_array: list[Point]
+# distance_dict: dict[tuple[Point, Point], float]
 
 
-def christofides():
-    # node_count = len(distance_array)
+def solve(input_list: list[Point]) -> tuple[float, list[Point]]:
+    distance_dict = create_distance_dict(input_list)
+    return christofides(input_list, distance_dict)
+
+
+def christofides(node_array: list[Point], distance_dict: dict[tuple[Point, Point], float]) \
+        -> tuple[float, list[Point]]:
 
     # Step 1: Create a minimum spanning tree
-    mst = prims_mst()
-    print(f"MST: {mst}")
+    mst = prims_mst(node_array, distance_dict)
+    # print(f"MST: {mst}")
 
     # Step 2: Find odd-degree vertices
-    # # Count the degree of each vertex
     degree = {}
     for points in mst:
         (point1, point2) = points
@@ -26,35 +31,35 @@ def christofides():
             degree[point2] = 0
         degree[point1] += 1
         degree[point2] += 1
-    print(f"Degree: {degree}")
+    # print(f"Degree: {degree}")
 
     # # Find odd-degree vertices
     odd_vertices = [node for node in degree if degree[node] % 2 == 1]
-    print(f"Odd Vertices: {odd_vertices}")
+    # print(f"Odd Vertices: {odd_vertices}")
 
     # Step 3: Find minimum weight perfect matching
-    matching = min_weight_matching(odd_vertices)
-    print(f"Matching: {matching}")
+    matching = min_weight_matching(odd_vertices, distance_dict)
+    # print(f"Matching: {matching}")
 
     # Step 4: Combine MST and matching
     combined_graph = mst + matching
-    print(f"Combined Graph: {combined_graph}")
+    # print(f"Combined Graph: {combined_graph}")
 
-    # Step 5: Find Eulerian circuit
-    path = find_path(combined_graph)
-    print(f"Path: {path}")
+    # Step 5: Find a route that visits each vertex exactly once (Eulerian circuit)
+    complete_path = find_path(combined_graph)
+    # print(f"Path: {complete_path}")
 
     # Step 6: Make Hamiltonian circuit
-    hamiltonian_circuit = list(dict.fromkeys(path))
+    hamiltonian_circuit = list(dict.fromkeys(complete_path))
     hamiltonian_circuit.append(hamiltonian_circuit[0])
-    print(f"Hamiltonian Circuit: {hamiltonian_circuit}")
-    print(f"Cost: {graph.path_distance(hamiltonian_circuit)}")
-    return hamiltonian_circuit
+    # print(f"Hamiltonian Circuit: {hamiltonian_circuit}")
+    # print(f"Cost: {graph.path_distance(hamiltonian_circuit)}")
+    return graph.path_distance(hamiltonian_circuit), hamiltonian_circuit
 
 
-def find_path(graph):
+def find_path(nodes: list[tuple[Point, Point]]) -> list[Point]:
     path = []
-    for (p1, p2) in graph:
+    for (p1, p2) in nodes:
         if not path:
             path.append(p1)
             path.append(p2)
@@ -69,7 +74,7 @@ def find_path(graph):
     return path
 
 
-def prims_mst(r):
+def prims_mst(node_array: list[Point], distance_dict: dict[tuple[Point, Point], float]) -> list[tuple[Point, Point]]:
     unselected = set(node_array.copy())
     mst = []
     for _ in range(len(unselected) - 1):
@@ -87,7 +92,8 @@ def prims_mst(r):
     return mst
 
 
-def min_weight_matching(odd_vertices: list[Point]) -> list[tuple[Point, Point]]:
+def min_weight_matching(odd_vertices: list[Point], distance_dict: dict[tuple[Point, Point], float]) \
+        -> list[tuple[Point, Point]]:
     matching = []
     unmatched = odd_vertices.copy()
     while unmatched:
@@ -108,14 +114,13 @@ def min_weight_matching(odd_vertices: list[Point]) -> list[tuple[Point, Point]]:
             break
     return matching
 
-
-if __name__ == '__main__':
-    i = max_node_count
-    node_count = i
-    node_array = generate_points(node_count)
-    print(f"Path: {node_array}")
-    distance_dict = create_distance_dict(node_array)
-    path = christofides()
-    cost = graph.path_distance(path)
-    print(f"{i},{cost},{graph.calculations},{path}")
-
+# if __name__ == '__main__':
+#     i = max_node_count
+#     node_count = i
+#     node_array = generate_points(node_count)
+#     print(f"Path: {node_array}")
+#     distance_dict = create_distance_dict(node_array)
+#     path = christofides()
+#     cost = graph.path_distance(path)
+#     print(f"{i},{cost},{graph.calculations},{path}")
+#

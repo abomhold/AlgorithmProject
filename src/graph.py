@@ -20,12 +20,14 @@ class Point:
 
 
 # Use distance formula on two point objects
-def calculate_distance(point1: Point, point2: Point) -> float:
+def calculate_distance(point1, point2) -> float:
     global calculations
     calculations += 1
-
-    return math.sqrt(math.pow(point1.x_cord - point2.x_cord, 2)
-                     + math.pow(point1.y_cord - point2.y_cord, 2))
+    p1_x, p1_y = point1
+    p2_x, p2_y = point2
+    return math.sqrt(
+        math.pow(p1_x - p2_x, 2) +
+        math.pow(p1_y - p2_y, 2))
 
 
 # Iteratively sum the loop of points
