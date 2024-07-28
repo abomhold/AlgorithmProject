@@ -54,7 +54,6 @@ def christofides(node_array: list[Point], distance_dict: dict[tuple[Point, Point
     return graph.path_distance(hamiltonian_circuit), hamiltonian_circuit
 
 
-
 def depth_first_search(edges: list, distance_dict: dict) -> list[Point]:
     visited = set()
     route = []
@@ -71,6 +70,7 @@ def depth_first_search(edges: list, distance_dict: dict) -> list[Point]:
             route.append(p2)
             visited.add(p2)
     return route
+
 
 def prims_mst(node_array: list[Point], distance_dict: dict[tuple[Point, Point], float]) \
         -> list[tuple[Point, Point]]:
