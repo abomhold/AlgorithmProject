@@ -7,16 +7,15 @@ calculations: int = 0
 
 
 # Point data class
-class Point:
+class Point(tuple):
     x_cord: int
     y_cord: int
 
-    def __init__(self, x_cord: int, y_cord: int):
-        self.x_cord = x_cord
-        self.y_cord = y_cord
+    def __new__(cls, x_cord: int, y_cord: int):
+        return tuple.__new__(cls, (x_cord, y_cord))
 
     def __repr__(self) -> str:
-        return f'({self.x_cord}, {self.y_cord})'
+        return f'({self[0]}, {self[1]})'
 
 
 # Use distance formula on two point objects
@@ -71,4 +70,4 @@ if __name__ == '__main__':
     print(f"Path: {points_list}")
     print(f"Cost: {path_distance(points_list)}")
     print(f"Count: {calculations}")
-    print(f"Matrix: {create_distance_matrix(points_list)}")
+    print(f"Matrix: {create_distance_dict(points_list)}")
