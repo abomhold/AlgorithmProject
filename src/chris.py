@@ -91,26 +91,6 @@ def prims_mst(node_array: list[Point]) \
     return mst
 
 
-# import networkx as nx
-# from src.graph import Point, calculate_distance
-#
-#
-# def min_weight_matching(odd_vertices: list[Point]) -> list[tuple[Point, Point]]:
-#     # Create a complete graph of odd-degree vertices
-#     G = nx.Graph()
-#     for i, p1 in enumerate(odd_vertices):
-#         for j in range(i + 1, len(odd_vertices)):
-#             p2 = odd_vertices[j]
-#             weight = calculate_distance(p1, p2)
-#             G.add_edge(p1, p2, weight=weight)
-#
-#     # Find minimum weight perfect matching
-#     matching = nx.min_weight_matching(G)
-#
-#     # Convert the result to a list of tuples
-#     return list(matching)
-
-
 def min_weight_matching(odd_vertices: list[Point]) \
         -> list[tuple[Point, Point]]:
     matching = []
@@ -137,6 +117,7 @@ def min_weight_matching(odd_vertices: list[Point]) \
 
 if __name__ == '__main__':
     for i in range(4, 14):
+        graph.calculations = 0
         node_array = generate_points(i)
         cost, path = solve(node_array)
         print(f"{i},{cost},{graph.calculations},{path}")

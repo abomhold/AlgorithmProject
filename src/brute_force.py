@@ -29,7 +29,8 @@ def find_shortest_path(path: list[Point], visited: set[int]) -> tuple[float, lis
 
 
 if __name__ == '__main__':
-    for i in range(4, 10):
+    for i in range(4, 14):
+        graph.calculations = 0
         node_array = generate_points(i)
         cost, path = solve(node_array)
         print(f"{i},{cost},{graph.calculations},{path}")

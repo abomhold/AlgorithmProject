@@ -22,7 +22,7 @@ The following code snippet illustrates the core logic of the Brute Force algorit
 
 [source,python]
 ----
-def find_shortest_path(path: list[Point], visited: set[int]) -> tuple[float, list[Point]]:
+def brute_force(path: list[Point], visited: set[int]) -> tuple[float, list[Point]]:
     if len(visited) == node_count:
         return calculate_distance(path[-1], path[0]), [path[0]]
 
@@ -31,7 +31,7 @@ def find_shortest_path(path: list[Point], visited: set[int]) -> tuple[float, lis
 
     for j in range(node_count):
         if j not in visited:
-            current_distance, sub_path = find_shortest_path(path + [path[j]], visited | {j})
+            current_distance, sub_path = brute_force(path + [path[j]], visited | {j})
             current_distance += calculate_distance(path[-1], path[j])
 
             if current_distance < best_distance:
@@ -49,7 +49,7 @@ As the next code snippet shows, the algorithm does not differ much from the Brut
 
 [source,python]
 ----
-def solve_loop(pos: int, mask: int, node_array: list[Point], node_count: int,
+def held_kemp(pos: int, mask: int, node_array: list[Point], node_count: int,
                memo: dict[tuple[int, int], tuple[float, list[Point]]]) \
                                         -> tuple[float, list[Point], int]:
   # Check if all positions have been visited this recursive call
@@ -91,6 +91,23 @@ This is especially true for the TSP, as an NP-hard problem, where even checking 
 As such, we turn to approximate algorithms to find solutions in a reasonable amount of time.
 The nearest neighbor algorithm is a simple greedy approach and a good starting point for investigating heuristics.
 The algorithm starts at a random city and repeatedly visits the nearest unvisited city until all cities are visited.
+This approach is incredibly fast, with a time complexity of O(n^2) and is the first actually tractable algorithm.
+However, it does not guarantee an optimal solution, and in fact makes no promises about the quality of the solution.
+[source,python]
+----
+def nearest_neighbor(node_array: list[Point]):
+    route = [node_array.pop()]
+    remaining: set[Point] = set(node for node in node_array)
+    while remaining:
+        current_city = route[-1]
+        nearest_city = min(
+                    [(node, calculate_distance(current_city, node)) for node in remaining],
+                    key=lambda x: x[1])
+        route.append(nearest_city[0])
+        remaining.remove(nearest_city[0])
+        route.append(route[0])
+    return route
+----
 
 
 
