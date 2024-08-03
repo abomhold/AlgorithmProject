@@ -1,0 +1,124 @@
+== Comparison of Traveling Salesman Algorithms
+
+=== Introduction
+
+The Traveling Salesman Problem (TSP) is a classic optimization problem in computer science and operations research.
+Given a set of cities and the distances between them, the goal is to find the shortest possible route that visits each city exactly once and returns to the starting city.
+The TSP has applications in various fields, including logistics, manufacturing, and computer science.
+Since it can be abstracted as a graph problem, actual uses can be found in a plethora of state based problems.
+The problem is NP-hard, thus any exact solution will have an exponential time complexity.
+We will compare two exact algorithms (Brute Force and Held-Karp) and two approximate algorithms (Christofides and Nearest Neighbor) to solve the TSP.
+The goal is to evaluate the performance of these algorithms in terms of path cost and execution time.
+
+
+=== Algorithm Presentation
+
+The first two algorithms are exact algorithms, which guarantee an optimal solution.
+The Brute Force algorithm explores all possible permutations of the cities to find the shortest path.
+This is a naive approach that becomes intractable for large instances due to its factorial time complexity.
+However, it serves as a baseline for comparison with other algorithms.
+The heart of the algorithm is the recursive loop that generates all possible paths and calculates their total distance.
+The following code snippet illustrates the core logic of the Brute Force algorithm:
+
+[source,python]
+----
+def find_shortest_path(path: list[Point], visited: set[int]) -> tuple[float, list[Point]]:
+    if len(visited) == node_count:
+        return calculate_distance(path[-1], path[0]), [path[0]]
+
+    best_distance = float('inf')
+    best_path = []
+
+    for j in range(node_count):
+        if j not in visited:
+            current_distance, sub_path = find_shortest_path(path + [path[j]], visited | {j})
+            current_distance += calculate_distance(path[-1], path[j])
+
+            if current_distance < best_distance:
+                best_distance = current_distance
+                best_path = [path[j]] + sub_path
+    return best_distance, best_path
+----
+
+The Held-Karp algorithm is another exact algorithm.
+However, it uses dynamic programming, in my case memoization for simplicity, to avoid redundant calculations.
+The algorithm builds up a table of sub-problems and their solutions, which are then used to solve larger sub-problems.
+This approach reduces the time complexity from factorial to exponential.
+While this is a significant improvement, the algorithm is still not practical for large instances.
+As the next code snippet shows, the algorithm does not differ much from the Brute Force algorithm in terms of logic:
+
+[source,python]
+----
+def solve_loop(pos: int, mask: int, node_array: list[Point], node_count: int,
+               memo: dict[tuple[int, int], tuple[float, list[Point]]]) \
+                                        -> tuple[float, list[Point], int]:
+  # Check if all positions have been visited this recursive call
+    if mask == (1 << node_count) - 1:
+        cost += 1
+        return calculate_distance(node_array[pos], node_array[0]), [node_array[0]]
+
+    # Check if the current combination has been calculated before
+    if (pos, mask) in memo:
+        (best_distance, best_path) = memo[(pos, mask)]
+        return best_distance, best_path, cost
+
+    best_distance = float('inf')
+    best_path = []
+
+    for j in range(node_count):
+        # if the index is not in the mask...
+        if not (mask & (1 << j)):
+            current_distance, sub_path, cost = solve_loop(
+                                                j,  # new position
+                                                mask | (1 << j), # new mask
+                                                node_array,
+                                                node_count,
+                                                memo)
+            current_distance += calculate_distance(node_array[pos], node_array[j])
+
+            if current_distance < best_distance:
+                best_distance = current_distance
+                best_path = [node_array[j]] + sub_path
+
+    memo[(pos, mask)] = (best_distance, best_path)
+    return best_distance, best_path, cost
+----
+One a smaller note, I encoded the positions and paths as integers and used bitwise operations to manipulate them.
+This may seem out of place compared to the rest but was a result of various implementation attempts and I did not feel the need to change it for the sake of consistency.
+
+Even though the Held-Karp algorithm is the most efficient exact algorithm, its inability to achieve sub-exponential time complexity demonstrates the difficulty of the NP problems.
+This is especially true for the TSP, as an NP-hard problem, where even checking the validity of a solution is NP.
+As such, we turn to approximate algorithms to find solutions in a reasonable amount of time.
+The nearest neighbor algorithm is a simple greedy approach and a good starting point for investigating heuristics.
+The algorithm starts at a random city and repeatedly visits the nearest unvisited city until all cities are visited.
+
+
+
+Christofides Algorithm:
+Description: Describe the steps involved in the Christofides algorithm, including minimum spanning tree, perfect matching, and Eulerian circuit.
+Implementation Details: Provide a brief overview of the implementation.
+Nearest Neighbor Algorithm:
+Description: Explain the greedy approach used in the Nearest Neighbor algorithm.
+Implementation Details: Provide a brief overview of the implementation.
+
+=== Experimental Design
+
+Objective: State the goal of comparing the TSP algorithms.
+Metrics for Comparison: Describe the metrics used for comparison, such as execution time and path cost.
+Experimental Setup:
+Input Generation: Explain how the input data (points) were generated.
+Data Collection: Describe the process of collecting data for each algorithm.
+Methodology: Outline the steps taken to conduct the experiments and gather results.
+
+=== Results
+
+Graphical Representations:
+Box Plot: Show the comparison of path costs for different algorithms.
+Line Graph: Display the runtime cost of each algorithm.
+Summary of Results: Provide a brief summary of the key findings from the graphical representations.
+
+=== Discussion
+
+Analysis of Results: Discuss the performance of each algorithm based on the experimental results.
+Conclusions: Draw conclusions about the efficiency and effectiveness of each algorithm.
+Future Work: Suggest potential improvements or future research directions.

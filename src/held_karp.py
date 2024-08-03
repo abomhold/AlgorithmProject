@@ -1,3 +1,4 @@
+from src import graph
 from src.graph import generate_points, calculate_distance, Point
 
 max_node_count: int = 11
@@ -8,11 +9,12 @@ def solve(input_list: list[Point]) -> tuple[float, list[Point], int]:
     in_node_array = input_list
     in_memo = {}
     distance, path, cost = solve_loop(0, 1, in_node_array, in_node_count, in_memo, 0)
-    return distance, path, cost
+    return distance, path + [path[0]], cost
 
 
 def solve_loop(pos: int, mask: int, node_array: list[Point], node_count: int,
                memo: dict[tuple[int, int], tuple[float, list[Point]]], cost: int) -> tuple[float, list[Point], int]:
+
     # Check if all positions have been visited this recursive call
     if mask == (1 << node_count) - 1:
         cost += 1
@@ -27,7 +29,7 @@ def solve_loop(pos: int, mask: int, node_array: list[Point], node_count: int,
     best_path = []
 
     for j in range(node_count):
-        # if the index is not in the mask,...
+        # if the index is not in the mask...
         if not (mask & (1 << j)):
             current_distance, sub_path, cost = solve_loop(j, mask | (1 << j), node_array, node_count, memo, cost)
             cost += 1
@@ -40,10 +42,9 @@ def solve_loop(pos: int, mask: int, node_array: list[Point], node_count: int,
     memo[(pos, mask)] = (best_distance, best_path)
     return best_distance, best_path, cost
 
-# if __name__ == '__main__':
-#     for i in range(4, max_node_count):
-#         node_count = i
-#         node_array = generate_points(node_count)
-#         memo = {}
-#         cost, path = solve(node_array)
-#         print(f"{i},{cost},{graph.calculations},{path}")
+
+if __name__ == '__main__':
+    for i in range(4, max_node_count):
+        node_array = generate_points(i)
+        cost, path, distance = solve(node_array)
+        print(f"{i},{cost},{graph.calculations},{path}")
