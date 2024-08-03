@@ -1,5 +1,6 @@
 import math
 import random
+from typing import Generator
 
 # Global
 board_length: int = 100
@@ -49,6 +50,12 @@ def create_distance_dict(points: list[Point]) -> dict[tuple[Point, Point], float
             dist[(points[i], points[j])] = calculate_distance(points[i], points[j])
             dist[(points[j], points[i])] = dist[(points[i], points[j])]
     return dist
+
+
+# Incermentally build paths from length 4 to limit
+def path_generator(limit: int) -> Generator[list[Point], None, None]:
+    for i in range(4, limit):
+        yield generate_points(i)
 
 
 def generate_points(node_count: int) -> list[Point]:

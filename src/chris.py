@@ -1,16 +1,17 @@
-import heapq
-from typing import List, Tuple
-
+import networkx as nx
 from src import graph
-from src.graph import Point, create_distance_dict, generate_points, calculate_distance
+from src.graph import Point, generate_points, calculate_distance
 
 
 def solve(input_list: list[Point]) -> tuple[float, list[Point]]:
-    return christofides(input_list)
+    return christofides(input_list, min_weight_matching)
 
 
-def christofides(node_array: list[Point]) \
-        -> tuple[float, list[Point]]:
+def solve_nx(input_list: list[Point]) -> tuple[float, list[Point]]:
+    return christofides(input_list, min_weight_matching_nx)
+
+
+def christofides(node_array: list[Point], match_algo) -> tuple[float, list[Point]]:
     # Step 1: Create a minimum spanning tree
     mst = prims_mst(node_array)
     # Step 2: Find odd-degree vertices
@@ -26,7 +27,7 @@ def christofides(node_array: list[Point]) \
     # # Find odd-degree vertices
     odd_vertices = [node for node in degree if degree[node] % 2 == 1]
     # Step 3: Find minimum weight perfect matching
-    matching = min_weight_matching(odd_vertices)
+    matching = match_algo(odd_vertices)
     # Step 4: Combine MST and matching
     combined_graph = mst + matching
     # Step 5: Find a route that visits each vertex exactly once (Eulerian circuit)
@@ -37,8 +38,6 @@ def christofides(node_array: list[Point]) \
 
 
 def find_complete_path(edges: list, node_array: list[Point]) -> list[Point]:
-    # this is a dictionary of lists where the key is a node
-    # and the value is a list of nodes that are connected to it
     connected_nodes = {nodes: [] for nodes in node_array}
     for (node_one, node_two) in edges:
         connected_nodes[node_one].append(node_two)
@@ -57,6 +56,46 @@ def find_complete_path(edges: list, node_array: list[Point]) -> list[Point]:
             if connected_nodes[neighboring_node]:
                 stack.append(neighboring_node)
     return complete_path
+
+
+def min_weight_matching(odd_vertices: list[Point]) \
+        -> list[tuple[Point, Point]]:
+    matching = []
+    unmatched = odd_vertices.copy()
+    while unmatched:
+        min_dist = float('inf')
+        min_pair = None
+        for (index, p1) in enumerate(unmatched):
+            for j in range(index + 1, len(unmatched)):
+                p2 = unmatched[j]
+                dist_to_p2 = calculate_distance(p1, p2)
+                if dist_to_p2 < min_dist:
+                    min_dist = dist_to_p2
+                    min_pair = (p1, p2)
+
+        if min_pair:
+            matching.append(min_pair)
+            unmatched.remove(min_pair[0])
+            unmatched.remove(min_pair[1])
+        else:
+            break
+    return matching
+
+
+def min_weight_matching_nx(odd_vertices: list[Point]) -> list[tuple[Point, Point]]:
+    # Create a complete graph
+    G = nx.Graph()
+    for i, v1 in enumerate(odd_vertices):
+        for j in range(i + 1, len(odd_vertices)):
+            v2 = odd_vertices[j]
+            weight = calculate_distance(v1, v2)
+            G.add_edge(v1, v2, weight=weight)
+
+    # Find minimum weight perfect matching
+    matching = nx.min_weight_matching(G)
+
+    # Convert matching to list of tuples
+    return list(matching)
 
 
 def trim_path(completed_path: list[Point]) -> list[Point]:
@@ -91,33 +130,12 @@ def prims_mst(node_array: list[Point]) \
     return mst
 
 
-def min_weight_matching(odd_vertices: list[Point]) \
-        -> list[tuple[Point, Point]]:
-    matching = []
-    unmatched = odd_vertices.copy()
-    while unmatched:
-        min_dist = float('inf')
-        min_pair = None
-        for (index, p1) in enumerate(unmatched):
-            for j in range(index + 1, len(unmatched)):
-                p2 = unmatched[j]
-                dist_to_p2 = calculate_distance(p1, p2)
-                if dist_to_p2 < min_dist:
-                    min_dist = dist_to_p2
-                    min_pair = (p1, p2)
-
-        if min_pair:
-            matching.append(min_pair)
-            unmatched.remove(min_pair[0])
-            unmatched.remove(min_pair[1])
-        else:
-            break
-    return matching
-
-
 if __name__ == '__main__':
     for i in range(4, 14):
         graph.calculations = 0
         node_array = generate_points(i)
         cost, path = solve(node_array)
+        print(f"{i},{cost},{graph.calculations},{path}")
+        graph.calculations = 0
+        cost, path = solve_nx(node_array)
         print(f"{i},{cost},{graph.calculations},{path}")

@@ -10,7 +10,6 @@ The problem is NP-hard, thus any exact solution will have an exponential time co
 We will compare two exact algorithms (Brute Force and Held-Karp) and two approximate algorithms (Christofides and Nearest Neighbor) to solve the TSP.
 The goal is to evaluate the performance of these algorithms in terms of path cost and execution time.
 
-
 === Algorithm Presentation
 
 The first two algorithms are exact algorithms, which guarantee an optimal solution.
@@ -25,15 +24,12 @@ The following code snippet illustrates the core logic of the Brute Force algorit
 def brute_force(path: list[Point], visited: set[int]) -> tuple[float, list[Point]]:
     if len(visited) == node_count:
         return calculate_distance(path[-1], path[0]), [path[0]]
-
     best_distance = float('inf')
     best_path = []
-
     for j in range(node_count):
         if j not in visited:
             current_distance, sub_path = brute_force(path + [path[j]], visited | {j})
             current_distance += calculate_distance(path[-1], path[j])
-
             if current_distance < best_distance:
                 best_distance = current_distance
                 best_path = [path[j]] + sub_path
@@ -52,21 +48,15 @@ As the next code snippet shows, the algorithm does not differ much from the Brut
 def held_kemp(pos: int, mask: int, node_array: list[Point], node_count: int,
                memo: dict[tuple[int, int], tuple[float, list[Point]]]) \
                                         -> tuple[float, list[Point], int]:
-  # Check if all positions have been visited this recursive call
     if mask == (1 << node_count) - 1:
         cost += 1
         return calculate_distance(node_array[pos], node_array[0]), [node_array[0]]
-
-    # Check if the current combination has been calculated before
     if (pos, mask) in memo:
         (best_distance, best_path) = memo[(pos, mask)]
         return best_distance, best_path, cost
-
     best_distance = float('inf')
     best_path = []
-
     for j in range(node_count):
-        # if the index is not in the mask...
         if not (mask & (1 << j)):
             current_distance, sub_path, cost = solve_loop(
                                                 j,  # new position
@@ -75,14 +65,13 @@ def held_kemp(pos: int, mask: int, node_array: list[Point], node_count: int,
                                                 node_count,
                                                 memo)
             current_distance += calculate_distance(node_array[pos], node_array[j])
-
             if current_distance < best_distance:
                 best_distance = current_distance
                 best_path = [node_array[j]] + sub_path
-
     memo[(pos, mask)] = (best_distance, best_path)
     return best_distance, best_path, cost
 ----
+
 One a smaller note, I encoded the positions and paths as integers and used bitwise operations to manipulate them.
 This may seem out of place compared to the rest but was a result of various implementation attempts and I did not feel the need to change it for the sake of consistency.
 
@@ -93,6 +82,7 @@ The nearest neighbor algorithm is a simple greedy approach and a good starting p
 The algorithm starts at a random city and repeatedly visits the nearest unvisited city until all cities are visited.
 This approach is incredibly fast, with a time complexity of O(n^2) and is the first actually tractable algorithm.
 However, it does not guarantee an optimal solution, and in fact makes no promises about the quality of the solution.
+
 [source,python]
 ----
 def nearest_neighbor(node_array: list[Point]):
@@ -109,16 +99,135 @@ def nearest_neighbor(node_array: list[Point]):
     return route
 ----
 
+Finally, we have the Christofides algorithm, which is another approximate algorithm.
+This algorithm guarantees a solution within 3/2 of the optimal solution for any instance of the TSP.
+It does raise the runtime complexity to O(n^4) but this is still within the realm of tractability.
+The algorithm consists of three main steps: finding a minimum spanning tree, finding a perfect matching, and finding an Eulerian circuit.
+For the minimum spanning tree, I used Prim's algorithm.
+I choose this because it is a simple algorithm that is easier to implement.
+While it is slower than other algorithms like Kruskal's, it's O(n^2) time complexity was less of a concern against the overall time complexity of O(n^4).
 
+[source,python]
+----
+def prims_mst(node_array: list[Point]) -> list[tuple[Point, Point]]:
+    unselected = set(node_array.copy())
+    mst = []
+    for _ in range(len(unselected) - 1):
+        min_edge = float('inf')
+        (p1, p2) = (None, None)
+        for point in node_array:
+            if point in unselected:
+                for other_point in node_array:
+                    if other_point in unselected and point != other_point:
+                        dist_to_other = calculate_distance(point, other_point)
+                        if dist_to_other < min_edge:
+                            min_edge = dist_to_other
+                            (p1, p2) = (point, other_point)
+        mst.append((p1, p2))
+        unselected.remove(p1)
+    return mst
+----
 
-Christofides Algorithm:
-Description: Describe the steps involved in the Christofides algorithm, including minimum spanning tree, perfect matching, and Eulerian circuit.
-Implementation Details: Provide a brief overview of the implementation.
-Nearest Neighbor Algorithm:
-Description: Explain the greedy approach used in the Nearest Neighbor algorithm.
-Implementation Details: Provide a brief overview of the implementation.
+We simply start at a random node and add the closest node to the tree until all nodes are connected.
+This is very similar to the nearest neighbor algorithm but instead of connecting the nodes directly, we add the edge to the tree.
+Once we have the minimum spanning tree, we need to create a path across all edges.
+In order to guarantee that this is possible, we need to pair up the nodes that have an odd number of edges.
+This is done by finding the minimum weight matching of the odd nodes.
+I had two different implementations of this, one using the Blossom algorithm and one using a greedy approach.
+Implementing the Blossom algorithm from scratch was a bit too much for this project, so I opted to use a python library.
+The implementation is as follows:
+
+[source,python]
+----
+def min_weight_matching_nx(odd_vertices: list[Point]) -> list[tuple[Point, Point]]:
+    G = nx.Graph()
+    for i, v1 in enumerate(odd_vertices):
+        for j in range(i + 1, len(odd_vertices)):
+            v2 = odd_vertices[j]
+            weight = calculate_distance(v1, v2)
+            G.add_edge(v1, v2, weight=weight)
+    matching = nx.min_weight_matching(G)
+    return list(matching)
+----
+
+The problem with this is that I am tracking the runtime of these algorithms via a custom distance function and the library does not allow for this or any other way to track the internal calculations.
+Thus, I also implemented a greedy approach that will allow me to track the runtime.
+It is less efficient and so won't have the expected runtime or path cost, but it is a good approximation for comparison.
+
+[source,python]
+----
+def min_weight_matching(odd_vertices: list[Point]) -> list[tuple[Point, Point]]:
+    matching = []
+    unmatched = odd_vertices.copy()
+    while unmatched:
+        min_dist = float('inf')
+        min_pair = None
+        for (index, p1) in enumerate(unmatched):
+            for j in range(index + 1, len(unmatched)):
+                p2 = unmatched[j]
+                dist_to_p2 = calculate_distance(p1, p2)
+                if dist_to_p2 < min_dist:
+                    min_dist = dist_to_p2
+                    min_pair = (p1, p2)
+
+        if min_pair:
+            matching.append(min_pair)
+            unmatched.remove(min_pair[0])
+            unmatched.remove(min_pair[1])
+        else:
+            break
+    return matching
+----
+
+Once we have the minimum weight matching, we can combine the minimum spanning tree and the matching edges.
+This will give us a graph with all nodes having an even number of edges and allow us to find an Eulerian circuit.
+An Eulerian circuit is a path that visits every edge exactly once and returns to the starting node.
+We start with by grouping the edges into nodes and then starting at the node with the most edges.
+We then traverse the graph, removing the connection nodes from each edge as we go.
+
+[source,python]
+----
+def find_complete_path(edges: list, node_array: list[Point]) -> list[Point]:
+    connected_nodes = {nodes: [] for nodes in node_array}
+    for (node_one, node_two) in edges:
+        connected_nodes[node_one].append(node_two)
+        connected_nodes[node_two].append(node_one)
+    start_node = max(connected_nodes, key=lambda x: len(connected_nodes[x]))
+    stack = [start_node]
+    complete_path = []
+    while stack:
+        current_node = stack.pop()
+        complete_path.append(current_node)
+        for neighboring_node in connected_nodes[current_node]:
+            if current_node in connected_nodes[neighboring_node]:
+                connected_nodes[neighboring_node].remove(current_node)
+            if connected_nodes[neighboring_node]:
+                stack.append(neighboring_node)
+    return complete_path
+----
+
+Finally, we have a complete path that visits every edge exactly once.
+All that is left is to remove the duplicates from the path.
+This is done by traversing the path and adding each node to a list if it is not already in the list.
+This will give us the final path that visits every node exactly once and returns to the starting node.
+
+[source,python]
+----
+
+def trim_path(completed_path: list[Point]) -> list[Point]:
+    trimmed_path = []
+    visited = set()
+    for node in completed_path:
+        if node not in visited:
+            trimmed_path.append(node)
+            visited.add(node)
+    trimmed_path.append(trimmed_path[0])
+    return trimmed_path
+----
 
 === Experimental Design
+
+
 
 Objective: State the goal of comparing the TSP algorithms.
 Metrics for Comparison: Describe the metrics used for comparison, such as execution time and path cost.
