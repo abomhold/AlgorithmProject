@@ -10,13 +10,6 @@
             </Attribute>
           </value>
         </entry>
-        <entry key="/data/comparison.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
         <entry key="/data/runtime_comparison.csv">
           <value>
             <Attribute>

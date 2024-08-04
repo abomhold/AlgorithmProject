@@ -1,7 +1,14 @@
-== Comparison of Traveling Salesman Algorithms
+= Comparison of Traveling Salesman Algorithms
+Austin Bomhold
+:pdf-folio-placement: footer
+:pdf-themesdir: theme
+:pdf-fontsdir: theme/fonts
+:iconsdir: theme/icons
+:pdf-theme: tutorial.yml
+:sourcedir: src
+:title-page:
 
-=== Introduction
-
+== Introduction
 The Traveling Salesman Problem (TSP) is a classic optimization problem in computer science and operations research.
 Given a set of cities and the distances between them, the goal is to find the shortest possible route that visits each city exactly once and returns to the starting city.
 The TSP has applications in various fields, including logistics, manufacturing, and computer science.
@@ -10,8 +17,8 @@ The problem is NP-hard, thus any exact solution will have an exponential time co
 We will compare two exact algorithms (Brute Force and Held-Karp) and two approximate algorithms (Christofides and Nearest Neighbor) to solve the TSP.
 The goal is to evaluate the performance of these algorithms in terms of path cost and execution time.
 
-=== Algorithm Presentation
 
+== Algorithm Presentation
 The first two algorithms are exact algorithms, which guarantee an optimal solution.
 The Brute Force algorithm explores all possible permutations of the cities to find the shortest path.
 This is a naive approach that becomes intractable for large instances due to its factorial time complexity.
@@ -209,6 +216,7 @@ def find_complete_path(edges: list, node_array: list[Point]) -> list[Point]:
 Finally, we have a complete path that visits every edge exactly once.
 All that is left is to remove the duplicates from the path.
 This is done by traversing the path and adding each node to a list if it is not already in the list.
+Then finished by appending the starting node to the end of the list.
 This will give us the final path that visits every node exactly once and returns to the starting node.
 
 [source,python]
@@ -225,26 +233,115 @@ def trim_path(completed_path: list[Point]) -> list[Point]:
     return trimmed_path
 ----
 
-=== Experimental Design
+== Experimental Design
+
+The goal of this project is to compare the solutions of four TSP algorithms: Brute Force, Held-Karp, Nearest Neighbor, and Christofides.
+During the test, I aim to evaluate both the accuracy of the path and the calculations required.
+To judge the accuracy of the path, I will look at the spread of the path costs across 1000 consistent instances.
+Each instance will have the same number of nodes, fourteen, but the positions of the nodes will be randomly generated and guaranteed to be unique.
+The idea is to then compare the spread of the approximations to the spread of the optimal path costs using the Held-Karp algorithm as a baseline.
+This will tell us what the expected variation in path costs is for an exact solution and hopefully give us a better understanding of the quality of the approximations.
+I will also compare the accuracy of the two different minimum weight matching implementations in the Christofides algorithm.
+These being the Blossom algorithm provided by the networkx library and the greedy approach I implemented.
+
+To evaluate the runtime of the algorithms, I will measure the amount of calls to the distance function.
+Each algorithm implements the same distance function provided by the graph script.
+This ensures that the calculations are consistent across all algorithms.
+Interestingly, during testing, I often used a pre-calculated distance matrix to speed up the computations allowing me to test more instances in a shorter amount of time while still maintaining the consistency of the calculations.
+As the function is used as a counter, even if the distance is pre-calculated, the counter will still increment.
+
+[source,python]
+----
+def calculate_distance(point1, point2) -> float:
+    global calculations
+    calculations += 1
+    p1_x, p1_y = point1
+    p2_x, p2_y = point2
+    return math.sqrt(
+        math.pow(p1_x - p2_x, 2) +
+        math.pow(p1_y - p2_y, 2))
+----
+
+There are a couple of differences between the runtime test and the accuracy test.
+First, the runtime test will use random test instances and apply them to each of the algorithms.
+Second, the runtime test will track the worst result of all test instances, whereas the accuracy test will focus on the spread of the results.
+This will give us an idea of the upper bound of the runtime for each algorithm which is more useful for practical applications.
+In contrast to the accuracy test which will instances of the same size, the runtime test will use instances of increasing size, from 4 to 13 nodes.
+In the accuracy test, we want to see how the algorithms perform on consistent instances, while in the runtime test, we want to see how the algorithms scale with the number of nodes.
+Finally, the runtime test will only run 10 instances per algorithm per 100 runs, while the accuracy test will run 1000 instances per algorithm during a single run.
+In total, this should give us a two different perspectives on the performance of the algorithms.
+Each with relatively good rigor and consistency, while testing in different enough ways to paint a full picture.
+
+== Results
+
+After running the experiments, including offloading some of the exponential calculations to a Google Colab instance, I was able to gather the following results.
+
+image::{docdir}/data/runtime_comparison_plot.png[Runtime Comparison]
+
+Firstly, the calculations are represented by the y-axis and the number of nodes in the instance is represented by the x-axis.
+The y-axis is scaled logarithmically to better visualize the exponential growth and to keep with conventions, a base of 2 was chosen.
+As we can see, each algorithm is represented by a different colored line.
+Additionally, the graph includes three general runtime categories to help orient the viewer on the logarithmic scale.
+These are the squared, cubed, and exponential time complexities and indicated by the grey dotted lines.
+This brings us to the accuracy comparison.
+
+image::{docdir}/data/accuracy_comparison_plot.png[Accuracy Comparison]
+
+Here a box plot is used to show the spread of the path costs for each algorithm.
+Each of the approximate algorithms is compared to the optimal solution provided by the Held-Karp algorithm.
+They are then displayed in order of increasing spread.
+The y-axis represents each of the algorithms and the x-axis represents the path cost.
+Additionally, to compare the effect of the minimum weight matching implementation in the Christofides algorithm, the Blossom algorithm is compared to the greedy approach.
+The implementation of the Christofides algorithm using the Blossom algorithm notated as `Christofides_nx`, as it uses the networkx library.
+The graph was left relatively simple to make it easier pinpoint the key figures represented in the box plot (median, IQR,...).
+
+== Discussion
+
+The runtime results were mostly in line with expectations.
+The Brute Force algorithm was by far the slowest with an exponential time complexity.
+We knew this going it, but it adds validity for the testing process.
+Similarly, the Held-Karp algorithm was the most efficient exact algorithm, but still had a greater than exponential time complexity.
+The approximate algorithms were much faster.
+The Nearest Neighbor algorithm was the fastest, with a time complexity of O(n^2).
+This one was interesting as it is increasingly fast as the number of nodes increases, and has plenty of room for optimization.
+I think that for practical applications there is an effective and relatively simple solution that lies somewhere between the Nearest Neighbor and Christofides algorithms.
+Finally, the Christofides algorithm was the slowest of the approximate algorithm, and was the only one to have an unexpected time complexity.
+The time complexity was expected to be O(n^4) but was actually O(n^3).
+I believe this was due to the minimum weight matching implementation.
+As mentioned earlier, the runtime test utilized a ready approach to the minimum weight matching problem in the Christofides algorithm.
+The greedy approach was around a factor of n faster than computing an optimal solution and considerably less complex.
+
+Unlike with the runtime test, I didn't have much in the way of expectations for the accuracy test.
+I knew that the Christofides algorithm was supposed to be at most 3/2 times the optimal solution.
+I also thought the Nearest Neighbor algorithm was going to be the worst though I didn't know by how much.
+After some initial struggles were I seemed to have gotten my data mixed up, I was able to get reliable results.
+In the end however, the accuracy test provided some unexpected results.
+Firstly, the Nearest Neighbor algorithm was far worse than I expected.
+If you look at the box plot, you can see that the even on the instances where all other algorithms were close to the optimal solution, the Nearest Neighbor algorithm was far off.
+In fact, the minimum path cost of the Nearest Neighbor algorithm was close to 1.5 times the optimal solution's maximum path length.
+Even more surprising was that in some instances, the Nearest Neighbor algorithm seemed to generate a path that was twice the optimal solution.
+Clearly, the Nearest Neighbor algorithm is not a good choice if accuracy is a concern.
+
+Which brings us to the Christofides algorithm.
+The surprise here being just how little the Christofides algorithm deviated from the optimal solution.
+The Christofides algorithm is much closer to the optimal solution than nearest neighbor and demonstrates why it was such an important algorithm.
+Another notable revelation was just how insignificant the difference was between the minimum weight matching with greedy and Blossom implementations.
+The greedy approach was a factor of n faster than expected, but the path cost was almost identical.
+On top of that the greedy approach to the minimum weight matching problem was much less complex than the Blossom algorithm.
+There is one big caveat here, as the design of the test instances embedded an assumption that the triangle inequality would hold.
+This is because the points were generated on a 2D plane and the distance function was the Euclidean distance.
+This is a valid assumption in a lot of cases.
+However, given instances where the cost of traveling between two points is not symmetric, the Christofides algorithm would not be able to guarantee a solution within 3/2 of the optimal solution.
+
+In conclusion, this project was a great exercise in algorithm implementation and testing.
+I was able to implement four different algorithms to solve the TSP and compare their performance.
+As well as practice with some of the ideas and concepts that were covered in the course.
+I would say that I'm probably 80% satisfied with the results.
+Given more time I would try to remove this bias from my tests and see how the algorithms perform in a more general case especially against the nearest neighbor algorithm.
+Finally, I would have liked to track the runtime of the Blossom algorithm to see if I can confirm the missing factor of n.
 
 
 
-Objective: State the goal of comparing the TSP algorithms.
-Metrics for Comparison: Describe the metrics used for comparison, such as execution time and path cost.
-Experimental Setup:
-Input Generation: Explain how the input data (points) were generated.
-Data Collection: Describe the process of collecting data for each algorithm.
-Methodology: Outline the steps taken to conduct the experiments and gather results.
 
-=== Results
 
-Graphical Representations:
-Box Plot: Show the comparison of path costs for different algorithms.
-Line Graph: Display the runtime cost of each algorithm.
-Summary of Results: Provide a brief summary of the key findings from the graphical representations.
 
-=== Discussion
-
-Analysis of Results: Discuss the performance of each algorithm based on the experimental results.
-Conclusions: Draw conclusions about the efficiency and effectiveness of each algorithm.
-Future Work: Suggest potential improvements or future research directions.

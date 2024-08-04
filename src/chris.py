@@ -110,8 +110,7 @@ def trim_path(completed_path: list[Point]) -> list[Point]:
     return trimmed_path
 
 
-def prims_mst(node_array: list[Point]) \
-        -> list[tuple[Point, Point]]:
+def prims_mst(node_array: list[Point]) -> list[tuple[Point, Point]]:
     unselected = set(node_array.copy())
     mst = []
     for _ in range(len(unselected) - 1):

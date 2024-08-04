@@ -19,7 +19,7 @@ num_runs: int = 50
 
 
 def generate_plot() -> None:
-    data = pd.read_csv("data/runtime_comparison.csv")
+    data = pd.read_csv("../data/runtime_comparison.csv")
     data = data.replace(np.inf, np.nan).replace(-np.inf, np.nan).dropna()
 
     fig, ax = plt.subplots()
@@ -92,7 +92,7 @@ def runtime_comparison() -> None:
             avg_duration = total_duration / num_runs
             results.append((num_nodes, func.__name__, worst_calculations, avg_duration))
 
-    with open("data/runtime_comparison.csv", "w") as f:
+    with open("../data/runtime_comparison.csv", "w") as f:
         f.write("nodes,hd_calc,hd_duration,ch_calc,ch_duration,nn_calc,nn_duration\n")
         # Write results to csv and convert algorithm name to multi-column format
         for (nodes, algorithm, worst_calculations, avg_duration) in results:

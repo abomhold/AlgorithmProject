@@ -20,6 +20,7 @@ class Point(tuple):
 
 
 # Use distance formula on two point objects
+# tag::calculate_distance[]
 def calculate_distance(point1, point2) -> float:
     global calculations
     calculations += 1
@@ -28,6 +29,9 @@ def calculate_distance(point1, point2) -> float:
     return math.sqrt(
         math.pow(p1_x - p2_x, 2) +
         math.pow(p1_y - p2_y, 2))
+
+
+# end::calculate_distance[]
 
 
 # Iteratively sum the loop of points

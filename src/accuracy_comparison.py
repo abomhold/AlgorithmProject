@@ -9,7 +9,7 @@ from src import held_karp as hp
 from src import nearest as nn
 from src.graph import Point
 
-with open("data/acc_test_paths.txt", "r") as f:
+with open("../data/acc_test_paths.txt", "r") as f:
     PATHS = [eval(line) for line in f]
 
 node_count = len(PATHS[0])
@@ -45,15 +45,10 @@ def run_accuracy_test():
     start_time = time.time()
     chris_results, held_results, nearest_results, chris_nx_results = multi_proc_loop()
     duration = time.time() - start_time
-    with open("data/accuracy_comparison.csv", "w") as f:
+    with open("../data/accuracy_comparison.csv", "w") as f:
         f.write("id,ch_dist,ch_nx_dist,hk_dist,nn_dist\n")
 
         for solution in range(number_of_paths):
-            print(f"Solution {solution + 1}:",
-                  f"Chris: {chris_results[solution][0]}",
-                  f"Chris_nx: {chris_nx_results[solution][0]}",
-                  f"Held: {held_results[solution][0]}",
-                  f"Nearest: {nearest_results[solution][0]}")
             f.write(f"{solution + 1},"  # id    
                     f"{chris_results[solution][0]},"  # chris_dist
                     f"{chris_nx_results[solution][0]},"  # chris_nx_dist
@@ -64,7 +59,7 @@ def run_accuracy_test():
 
 
 def plot_accuracy() -> None:
-    data = pd.read_csv("data/accuracy_comparison.csv")
+    data = pd.read_csv("../data/accuracy_comparison.csv")
     print(data.columns)
     d = np.array(data["hk_dist"])
     c = np.array(data["ch_nx_dist"])

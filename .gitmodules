@@ -1,0 +1,3 @@
+[submodule "theme/tutorial"]
+	path = theme/tutorial
+	url = https://github.com/uroesch/asciidoctor-pdf-tutorial-theme
