@@ -1,2 +1,0 @@
-= AsciiDoc Syntax: This is the Book Subtitle
-include::syntax.adoc[]
