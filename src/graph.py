@@ -77,8 +77,37 @@ def generate_points(node_count: int) -> list[Point]:
 
 
 if __name__ == '__main__':
-    points_list = generate_points(20)
-    print(f"Path: {points_list}")
-    print(f"Cost: {path_distance(points_list)}")
-    print(f"Count: {calculations}")
-    print(f"Matrix: {create_distance_dict(points_list)}")
+    paths = [[Point(0, 0), Point(1, 1), Point(-2, -1), Point(2, 1), Point(-3, 5), Point(0, 0)],
+             [Point(0, 0), Point(1, 1), Point(-2, -1), Point(-3, 5), Point(2, 1), Point(0, 0)],
+             [Point(0, 0), Point(1, 1), Point(2, 1), Point(-2, -1), Point(-3, 5), Point(0, 0)],
+             [Point(0, 0), Point(1, 1), Point(2, 1), Point(-3, 5), Point(-2, -1), Point(0, 0)],
+             [Point(0, 0), Point(1, 1), Point(-3, 5), Point(-2, -1), Point(2, 1), Point(0, 0)],
+             [Point(0, 0), Point(1, 1), Point(-3, 5), Point(2, 1), Point(-2, -1), Point(0, 0)],
+             [Point(0, 0), Point(-2, -1), Point(1, 1), Point(2, 1), Point(-3, 5), Point(0, 0)],
+             [Point(0, 0), Point(-2, -1), Point(1, 1), Point(-3, 5), Point(2, 1), Point(0, 0)],
+             [Point(0, 0), Point(-2, -1), Point(2, 1), Point(1, 1), Point(-3, 5), Point(0, 0)],
+             [Point(0, 0), Point(-2, -1), Point(2, 1), Point(-3, 5), Point(1, 1), Point(0, 0)],
+             [Point(0, 0), Point(-2, -1), Point(-3, 5), Point(1, 1), Point(2, 1), Point(0, 0)],
+             [Point(0, 0), Point(-2, -1), Point(-3, 5), Point(2, 1), Point(1, 1), Point(0, 0)],
+             [Point(0, 0), Point(2, 1), Point(1, 1), Point(-2, -1), Point(-3, 5), Point(0, 0)],
+             [Point(0, 0), Point(2, 1), Point(1, 1), Point(-3, 5), Point(-2, -1), Point(0, 0)],
+             [Point(0, 0), Point(2, 1), Point(-2, -1), Point(1, 1), Point(-3, 5), Point(0, 0)],
+             [Point(0, 0), Point(2, 1), Point(-2, -1), Point(-3, 5), Point(1, 1), Point(0, 0)],
+             [Point(0, 0), Point(2, 1), Point(-3, 5), Point(1, 1), Point(-2, -1), Point(0, 0)],
+             [Point(0, 0), Point(2, 1), Point(-3, 5), Point(-2, -1), Point(1, 1), Point(0, 0)],
+             [Point(0, 0), Point(-3, 5), Point(1, 1), Point(-2, -1), Point(2, 1), Point(0, 0)],
+             [Point(0, 0), Point(-3, 5), Point(1, 1), Point(2, 1), Point(-2, -1), Point(0, 0)],
+             [Point(0, 0), Point(-3, 5), Point(-2, -1), Point(1, 1), Point(2, 1), Point(0, 0)],
+             [Point(0, 0), Point(-3, 5), Point(-2, -1), Point(2, 1), Point(1, 1), Point(0, 0)],
+             [Point(0, 0), Point(-3, 5), Point(2, 1), Point(1, 1), Point(-2, -1), Point(0, 0)],
+             [Point(0, 0), Point(-3, 5), Point(2, 1), Point(-2, -1), Point(1, 1), Point(0, 0)]]
+    for path in paths:
+        print(f"Path: {path} ; Cost: {path_distance(path)}")
+        # print(f"Count: {calculations}")
+        # print(f"Matrix: {create_distance_dict(path)}")
+        # print()
+    # points_list = generate_points(20)
+    # print(f"Path: {points_list}")
+    # print(f"Cost: {path_distance(points_list)}")
+    # print(f"Count: {calculations}")
+    # print(f"Matrix: {create_distance_dict(points_list)}")

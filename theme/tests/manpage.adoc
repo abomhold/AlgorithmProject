@@ -1,2 +1,0 @@
-= AsciiDoc Syntax - Manpage
-include::syntax.adoc[]

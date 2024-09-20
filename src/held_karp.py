@@ -41,8 +41,9 @@ def solve_loop(pos: int, mask: int, node_array: list[Point], node_count: int,
 
 
 if __name__ == '__main__':
-    for i in range(4, 14):
-        graph.calculations = 0
-        node_array = generate_points(i)
-        cost, path = solve(node_array)
-        print(f"{i},{cost},{graph.calculations},{path}")
+    print(solve([Point(1, 1), Point(-2, -1), Point(2, 1), Point(-3, 5)]))
+# for i in range(4, 14):
+#     graph.calculations = 0
+#     node_array = generate_points(i)
+#     cost, path = solve(node_array)
+#     print(f"{i},{cost},{graph.calculations},{path}")

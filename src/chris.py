@@ -126,15 +126,18 @@ def prims_mst(node_array: list[Point]) -> list[tuple[Point, Point]]:
                             (p1, p2) = (point, other_point)
         mst.append((p1, p2))
         unselected.remove(p1)
+    print(mst)
     return mst
 
 
 if __name__ == '__main__':
-    for i in range(4, 14):
-        graph.calculations = 0
-        node_array = generate_points(i)
-        cost, path = solve(node_array)
-        print(f"{i},{cost},{graph.calculations},{path}")
-        graph.calculations = 0
-        cost, path = solve_nx(node_array)
-        print(f"{i},{cost},{graph.calculations},{path}")
+    print(solve([Point(1, 1), Point(-2, -1), Point(2, 1), Point(-3, 5), Point(0, 0)]))
+
+    # for i in range(4, 14):
+    #     graph.calculations = 0
+    #     node_array = generate_points(i)
+    #     cost, path = solve(node_array)
+    #     print(f"{i},{cost},{graph.calculations},{path}")
+    #     graph.calculations = 0
+    #     cost, path = solve_nx(node_array)
+    #     print(f"{i},{cost},{graph.calculations},{path}")

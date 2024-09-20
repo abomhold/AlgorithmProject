@@ -1,5 +1,5 @@
 from src import graph
-from src.graph import generate_points, calculate_distance, Point
+from src.graph import generate_points, calculate_distance, Point, path_distance
 
 
 def solve(node_array):
@@ -25,12 +25,18 @@ def find_shortest_path(path: list[Point], visited: set[int]) -> tuple[float, lis
             if current_distance < best_distance:
                 best_distance = current_distance
                 best_path = [path[j]] + sub_path
+
     return best_distance, best_path
 
 
 if __name__ == '__main__':
-    for i in range(4, 14):
-        graph.calculations = 0
-        node_array = generate_points(i)
-        cost, path = solve(node_array)
-        print(f"{i},{cost},{graph.calculations},{path}")
+    dist, path = solve([Point(1, 1), Point(-2, -1), Point(2, 1), Point(-3, 5), Point(0, 0)])
+    print(dist, path)
+    print(path_distance(path + [path[0]]))
+
+
+    # for i in range(4, 14):
+    #     graph.calculations = 0
+    #     node_array = generate_points(i)
+    #     cost, path = solve(node_array)
+    #     print(f"{i},{cost},{graph.calculations},{path}")
